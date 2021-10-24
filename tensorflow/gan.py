@@ -35,7 +35,7 @@ class Disc(tfk.Model):
         # self.l1 = tfkl.Dense(512, activation="leaky_relu")
         # self.l2 = tfkl.Dense(1, activation="sigmoid")
         self.c1 = tfkl.Conv2D(64, 3, 2, activation="leaky_relu")
-        self.b1 = tfkl.BatchNormalization()
+        # self.b1 = tfkl.BatchNormalization()
         self.c2 = tfkl.Conv2D(64, 3, 2, activation="leaky_relu")
         self.b2 = tfkl.BatchNormalization()
         self.c3 = tfkl.Conv2D(64, 3, 2, activation="leaky_relu")
@@ -47,7 +47,7 @@ class Disc(tfk.Model):
     def call(self, x):
         # x = tf.reshape(x,(-1,28*28))
         y = self.c1(x)
-        y = self.b1(y)
+        # y = self.b1(y)
         y = self.c2(y)
         y = self.b2(y)
         y = self.c3(y)

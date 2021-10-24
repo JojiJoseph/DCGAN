@@ -18,8 +18,8 @@ if __name__ == "__main__":
     gen = Generator()
     disc = Disc()
 
-    opt_gen = tfk.optimizers.Adam(learning_rate=0.0001)
-    opt_disc = tfk.optimizers.Adam(learning_rate=0.0001)
+    opt_gen = tfk.optimizers.Adam(learning_rate=0.0001, beta_1=0.5)
+    opt_disc = tfk.optimizers.Adam(learning_rate=0.0001, beta_1=0.5)
 
     bce = tfk.losses.BinaryCrossentropy()
     for epoch in range(1_000):
