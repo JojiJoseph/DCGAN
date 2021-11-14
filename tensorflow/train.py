@@ -2,7 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras as tfk
-import tensorflow.keras.layers as tfkl
 from tqdm import tqdm
 
 from gan import Disc, Generator
@@ -10,9 +9,9 @@ from gan import Disc, Generator
 if __name__ == "__main__":
     (x_train, y_train), (x_test, y_test) = tfk.datasets.mnist.load_data()
 
-    x_train = x_train.reshape((-1, 28,28,1)).astype('float')/255.
+    x_train = (x_train.reshape((-1, 28,28,1)).astype('float')-127.5)/127.5
 
-    batch_size = 100
+    batch_size = 256
     total_len = x_train.shape[0]
 
     gen = Generator()
@@ -23,6 +22,7 @@ if __name__ == "__main__":
 
     bce = tfk.losses.BinaryCrossentropy()
     for epoch in range(1_000):
+        print("Epoch:", epoch)
         for batch_id in tqdm(range(total_len // batch_size)):
 
             # Train generator
@@ -51,6 +51,7 @@ if __name__ == "__main__":
             plt.subplot(3, 3, i+1)
             z = np.random.normal(size=(1, 100))
             y = gen(z)[0]
+            y = (y+1.)/2.
             # y = tf.reshape(y, (28, 28, 1))
             plt.imshow(y, cmap="gray")
         plt.savefig(f"./fig{epoch}.png")

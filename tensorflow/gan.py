@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
 import tensorflow.keras as tfk
@@ -9,55 +8,56 @@ from tqdm import tqdm
 class Generator(tfk.Model):
     def __init__(self):
         super().__init__()
-        # self.l1 = tfkl.Dense(1024, activation="leaky_relu")
-        # self.bn1 = tfkl.BatchNormalization()
-        # self.l2 = tfkl.Dense(784, activation="sigmoid")
-        self.l1 = tfkl.Dense(4*4*1024, activation="leaky_relu")
-        self.c1 = tfkl.Conv2DTranspose(64,5,strides=2, activation="leaky_relu")
-        self.b1 = tfkl.BatchNormalization()
-        self.c2 = tfkl.Conv2DTranspose(64,5,strides=2, activation="leaky_relu")
-        self.b2 = tfkl.BatchNormalization()
-        self.c3 = tfkl.Conv2DTranspose(1,4,strides=1, activation="sigmoid")
+
+        self.seq = tfk.models.Sequential([
+            tfkl.Conv2DTranspose(1024,4,use_bias=False),
+            tfkl.BatchNormalization(),
+            tfkl.LeakyReLU(alpha=0.2),
+            # 4x4x1024
+            tfkl.Conv2DTranspose(512,4,strides=(2,2),padding='same',use_bias=False),
+            tfkl.BatchNormalization(),
+            tfkl.LeakyReLU(alpha=0.2),
+            # 8x8x512
+            tfkl.Conv2DTranspose(256,4,strides=(2,2),padding='same',use_bias=False),
+            tfkl.BatchNormalization(),
+            tfkl.LeakyReLU(alpha=0.2),
+            # 16x16x256
+            tfkl.Conv2DTranspose(128,4,strides=(2,2),padding='same',use_bias=False),
+            # tfkl.BatchNormalization(),
+            tfkl.LeakyReLU(alpha=0.2),
+            # 32x32x128
+            tfkl.Conv2D(1,5,use_bias=False),
+            tfkl.Activation(tf.nn.tanh)
+            # 28x28x1
+        ])
     def call(self, x):
-        y = self.l1(x)
-        y = tf.reshape(y, (-1,4,4,1024))
-        y = self.c1(y)
-        y = self.b1(y)
-        y = self.c2(y)
-        y = self.b2(y)
-        y = self.c3(y)
-        # print(y.shape)
+        y = tf.reshape(x, (-1,1,1,100))
+        y = self.seq(y)
         return y
 
 class Disc(tfk.Model):
     def __init__(self):
         super().__init__()
-        # self.l1 = tfkl.Dense(512, activation="leaky_relu")
-        # self.l2 = tfkl.Dense(1, activation="sigmoid")
-        self.c1 = tfkl.Conv2D(64, 3, 2, activation="leaky_relu")
-        # self.b1 = tfkl.BatchNormalization()
-        self.c2 = tfkl.Conv2D(64, 3, 2, activation="leaky_relu")
-        self.b2 = tfkl.BatchNormalization()
-        self.c3 = tfkl.Conv2D(64, 3, 2, activation="leaky_relu")
-        # self.b3 = tfkl.BatchNormalization()
-        # self.c4 = tfkl.Conv2D(64, 3, 2, activation="leaky_relu")
-        # self.l1 = tfkl.Dense(512, activation="leaky_relu")
-        # self.l2 = tfkl.Dense(1, activation="sigmoid")
-        self.l1 = tfkl.Dense(1, activation="sigmoid")
+
+        self.seq = tfk.models.Sequential([
+            tfkl.Conv2D(32,5,activation="leaky_relu", use_bias=False),
+            
+            tfkl.Conv2D(64,4,strides=2, use_bias=False),
+            tfkl.BatchNormalization(),
+            tfkl.LeakyReLU(alpha=0.2),
+
+            tfkl.Conv2D(128,4,strides=2, use_bias=False),
+            tfkl.LeakyReLU(alpha=0.2),
+
+            tfkl.Conv2D(1,4, activation="sigmoid", use_bias=False),
+            tfkl.Flatten()
+        ])
     def call(self, x):
-        # x = tf.reshape(x,(-1,28*28))
-        y = self.c1(x)
-        # y = self.b1(y)
-        y = self.c2(y)
-        y = self.b2(y)
-        y = self.c3(y)
-        # y = self.b3(y)
-        y = tf.reshape(y, (x.shape[0], -1))
-        y = self.l1(y)
-        # y = self.l2(y)
-        # print(y.shape)
+        y = self.seq(x)
         return y
 
 if __name__ == "__main__":
     gen = Generator()
     gen(np.zeros((1,100)))
+    disc = Disc()
+    disc(np.zeros((100,28,28,1)))
