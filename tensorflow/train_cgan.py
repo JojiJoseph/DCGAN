@@ -14,7 +14,7 @@ if __name__ == "__main__":
 
     x_train = (x_train.reshape((-1, 28,28,1)).astype('float')-127.5)/127.5
 
-    batch_size = 100
+    batch_size = 32
     total_len = x_train.shape[0]
 
     gen = Generator()
@@ -24,7 +24,7 @@ if __name__ == "__main__":
     opt_disc = tfk.optimizers.Adam(learning_rate=0.0001, beta_1=0.5)
 
     bce = tfk.losses.BinaryCrossentropy()
-    for epoch in range(1_000):
+    for epoch in range(100):
         for batch_id in tqdm(range(total_len // batch_size)):
             label_batch = y_train[batch_id*batch_size: (batch_id+1)*batch_size]
             # Train generator
